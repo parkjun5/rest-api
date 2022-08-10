@@ -85,7 +85,6 @@ class EventControllerTest {
                 .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
@@ -108,7 +107,6 @@ class EventControllerTest {
                     .limitOfEnrollment(100)
                     .location("신사역 스타텁 팩토리")
                     .build();
-
 
             mockMvc.perform(post("/api/events/")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +131,6 @@ class EventControllerTest {
                 .limitOfEnrollment(100)
                 .location("신사역 스타텁 팩토리")
                 .build();
-
 
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
