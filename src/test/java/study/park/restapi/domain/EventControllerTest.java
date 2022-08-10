@@ -1,4 +1,4 @@
-package study.park.restapi.events;
+package study.park.restapi.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

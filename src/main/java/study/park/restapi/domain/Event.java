@@ -1,4 +1,4 @@
-package study.park.restapi.events;
+package study.park.restapi.domain;
 
 import lombok.*;
 import org.hibernate.Hibernate;

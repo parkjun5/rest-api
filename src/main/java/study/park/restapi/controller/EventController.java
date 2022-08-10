@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import study.park.restapi.events.Event;
+import study.park.restapi.domain.Event;
 import study.park.restapi.repository.EventRepository;
 
 import java.net.URI;
