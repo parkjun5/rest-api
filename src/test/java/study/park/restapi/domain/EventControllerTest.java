@@ -43,8 +43,8 @@ class EventControllerTest {
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                .beginEventDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                .endEventDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -74,8 +74,8 @@ class EventControllerTest {
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                .beginEventDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                .endEventDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -101,8 +101,8 @@ class EventControllerTest {
                     .description("REST API Development with Spring")
                     .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
                     .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                    .beginEventDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                    .endEventDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
                     .basePrice(100)
                     .maxPrice(200)
                     .limitOfEnrollment(100)
@@ -117,4 +117,29 @@ class EventControllerTest {
                     .andDo(print())
                     .andExpect(status().isBadRequest());
         }
+
+    @Test
+    @DisplayName("잘못된 인풋 값 예외 테스트 POST /api/events/")
+    void event_Bad_Request_Wrong_Input() throws Exception {
+        EventDto nameNullEvent = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 31, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 1, 18, 0, 0))
+                .basePrice(10000)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("신사역 스타텁 팩토리")
+                .build();
+
+
+        mockMvc.perform(post("/api/events/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(nameNullEvent)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

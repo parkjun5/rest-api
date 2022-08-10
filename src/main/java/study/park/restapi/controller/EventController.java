@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import study.park.restapi.domain.Event;
 import study.park.restapi.dto.EventDto;
+import study.park.restapi.dto.validate.EventValidator;
 import study.park.restapi.repository.EventRepository;
 
 import javax.validation.Valid;
@@ -27,8 +28,15 @@ public class EventController {
 
     private final ModelMapper modelMapper;
 
+    private final EventValidator eventValidator;
+
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        eventValidator.validate(eventDto, errors);
 
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
