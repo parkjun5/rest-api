@@ -1,14 +1,19 @@
 package study.park.restapi.events;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Builder
 @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter @Setter @EqualsAndHashCode(of = "id")
+@Getter @Setter
+@Entity
 public class Event {
 
+    @Id @GeneratedValue
     private Integer id;
     private String name;
     private String description;
@@ -22,10 +27,24 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+
+    @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
 
     public static Event createEvent() {
         return new Event();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Event event = (Event) o;
+        return id != null && Objects.equals(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
