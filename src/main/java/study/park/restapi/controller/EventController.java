@@ -3,6 +3,7 @@ package study.park.restapi.controller;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,9 +45,34 @@ public class EventController {
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
         Event savedEvent = eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
+
+    }
+
+    @PostMapping(value = "/hateoas")
+    public ResponseEntity createEventWithHateoas(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+        eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
+        Event savedEvent = eventRepository.save(event);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(savedEvent.getId());
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EventRepresentation eventRepresentation = new EventRepresentation(event);
+        eventRepresentation.add(linkTo(EventController.class).withRel("query-event"));
+        eventRepresentation.add(selfLinkBuilder.withRel("update-event"));
+
+        return ResponseEntity.created(createdUri).body(eventRepresentation);
     }
 
 }
