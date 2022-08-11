@@ -165,5 +165,60 @@ class EventControllerTest {
                 .andExpect(jsonPath("$[0].defaultMessage").exists())
                 .andExpect(jsonPath("$[0].code").exists());
     }
+
+    @Test
+    @DisplayName("오프라인 확인/ 무료 여부 확인")
+    void isOffLineIsFree() throws Exception {
+            EventDto eventDto = EventDto.builder()
+                    .name("Spring")
+                    .description("REST API Development with Spring")
+                    .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                    .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                    .basePrice(100)
+                    .maxPrice(200)
+                    .limitOfEnrollment(100)
+                    .build();
+
+            mockMvc.perform(post("/api/events/")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaTypes.HAL_JSON)
+                            .content(objectMapper.writeValueAsString(eventDto)))
+                    .andDo(print())
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("id").exists())
+                    .andExpect(header().exists(HttpHeaders.LOCATION))
+                    .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE + ";charset=utf8"))
+                    .andExpect(jsonPath("free").value(false))
+                    .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                    .andExpect(jsonPath("offline").value(true));
+    }
     
+    @Test
+    @DisplayName("HATEOAS 추가")
+    void createEventPlusHateoas() throws Exception {
+            EventDto eventDto = EventDto.builder()
+                    .name("Spring")
+                    .description("REST API Development with Spring")
+                    .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                    .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                    .basePrice(100)
+                    .maxPrice(200)
+                    .limitOfEnrollment(100)
+                    .location("신사역 스타텁 팩토리")
+                    .build();
+
+        mockMvc.perform(post("/api/events/hateoas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-event").exists())
+                .andExpect(jsonPath("_links.update-event").exists());
+        }
 }
