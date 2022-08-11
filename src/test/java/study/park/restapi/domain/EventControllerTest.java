@@ -15,8 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import study.park.restapi.dto.EventDto;
-import study.park.restapi.repository.EventRepository;
+import study.park.restapi.response.dto.EventDto;
 
 import java.time.LocalDateTime;
 

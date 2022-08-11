@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import study.park.restapi.domain.Event;
-import study.park.restapi.dto.EventDto;
-import study.park.restapi.dto.validate.EventValidator;
+import study.park.restapi.response.dto.EventDto;
+import study.park.restapi.response.resource.EventRepresentation;
+import study.park.restapi.response.validate.EventValidator;
 import study.park.restapi.repository.EventRepository;
 
 import javax.validation.Valid;
