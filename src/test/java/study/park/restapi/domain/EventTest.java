@@ -39,7 +39,7 @@ class EventTest {
     }
 
     @Test
-    void isFreeTest(int testCase) throws Exception {
+    void isFreeTest() throws Exception {
         //given
         Event event = Event.builder()
                 .basePrice(0)
