@@ -80,7 +80,6 @@ class EventControllerTest {
     void event_Bad_Request_Unknown_Input() throws Exception {
         Event event = Event.builder()
                 .name("Spring")
-                .id(100)
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
@@ -123,7 +122,8 @@ class EventControllerTest {
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(nameNullEvent)))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("_links.index").exists());
     }
 
     @Test
@@ -147,7 +147,8 @@ class EventControllerTest {
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(nameNullEvent)))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("_links.index").exists());
     }
 
     @Test
@@ -172,9 +173,10 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(nameNullEvent)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].code").exists());
+                .andExpect(jsonPath("errors[0].objectName").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists());
     }
 
     @Test

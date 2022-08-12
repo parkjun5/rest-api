@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import study.park.restapi.domain.Event;
 import study.park.restapi.response.dto.EventDto;
+import study.park.restapi.response.resource.ErrorRepresentation;
 import study.park.restapi.response.resource.EventRepresentation;
 import study.park.restapi.response.validate.EventValidator;
 import study.park.restapi.repository.EventRepository;
@@ -36,13 +37,13 @@ public class EventController {
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return getBadRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);
 
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return getBadRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -56,11 +57,13 @@ public class EventController {
     @PostMapping(value = "/hateoas")
     public ResponseEntity createEventWithHateoas(@RequestBody @Valid EventDto eventDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return getBadRequest(errors);
         }
+
         eventValidator.validate(eventDto, errors);
+
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return getBadRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class);
@@ -75,6 +78,10 @@ public class EventController {
         eventRepresentation.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventRepresentation);
+    }
+
+    private static ResponseEntity<ErrorRepresentation> getBadRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorRepresentation(errors));
     }
 
 }
