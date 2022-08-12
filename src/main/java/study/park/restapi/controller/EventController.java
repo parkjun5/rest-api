@@ -2,15 +2,17 @@ package study.park.restapi.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import study.park.restapi.domain.Event;
 import study.park.restapi.response.dto.EventDto;
 import study.park.restapi.response.resource.ErrorRepresentation;
@@ -33,6 +35,14 @@ public class EventController {
     private final ModelMapper modelMapper;
 
     private final EventValidator eventValidator;
+
+    @GetMapping
+    public ResponseEntity queryEvent(Pageable pageable, PagedResourcesAssembler<Event> pagedResourcesAssembler) {
+        Page<Event> pageEvent = this.eventRepository.findAll(pageable);
+        var entityModels = pagedResourcesAssembler.toModel(pageEvent, EventRepresentation::new);
+        entityModels.add(Link.of("/docs/index.html#resources-query-events").withRel("profile"));
+        return ResponseEntity.ok(entityModels);
+    }
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
