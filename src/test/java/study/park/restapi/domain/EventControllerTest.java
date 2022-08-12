@@ -87,30 +87,30 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
-        }
-        
-        @Test
-        @DisplayName("빈 필수 인풋 값 예외 테스트 POST /api/events/")
-        void event_Bad_Request_Empty_Input() throws Exception {
-            EventDto nameNullEvent = EventDto.builder()
-                    .description("REST API Development with Spring")
-                    .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                    .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
-                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
-                    .basePrice(100)
-                    .maxPrice(200)
-                    .limitOfEnrollment(100)
-                    .location("신사역 스타텁 팩토리")
-                    .build();
+    }
 
-            mockMvc.perform(post("/api/events/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaTypes.HAL_JSON)
-                            .content(objectMapper.writeValueAsString(nameNullEvent)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest());
-        }
+    @Test
+    @DisplayName("빈 필수 인풋 값 예외 테스트 POST /api/events/")
+    void event_Bad_Request_Empty_Input() throws Exception {
+        EventDto nameNullEvent = EventDto.builder()
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("신사역 스타텁 팩토리")
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(nameNullEvent)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @DisplayName("잘못된 인풋 값 예외 테스트 POST /api/events/")
@@ -135,7 +135,7 @@ class EventControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
-    
+
     @Test
     @DisplayName("Bad Request 내용 추가 POST /api/events/")
     void event_Bad_Request_Response() throws Exception {
@@ -166,47 +166,47 @@ class EventControllerTest {
     @Test
     @DisplayName("오프라인 확인/ 무료 여부 확인")
     void isOffLineIsFree() throws Exception {
-            EventDto eventDto = EventDto.builder()
-                    .name("Spring")
-                    .description("REST API Development with Spring")
-                    .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                    .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
-                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
-                    .basePrice(100)
-                    .maxPrice(200)
-                    .limitOfEnrollment(100)
-                    .build();
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .build();
 
-            mockMvc.perform(post("/api/events/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaTypes.HAL_JSON)
-                            .content(objectMapper.writeValueAsString(eventDto)))
-                    .andDo(print())
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("id").exists())
-                    .andExpect(header().exists(HttpHeaders.LOCATION))
-                    .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE + ";charset=utf8"))
-                    .andExpect(jsonPath("free").value(false))
-                    .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-                    .andExpect(jsonPath("offline").value(true));
+        mockMvc.perform(post("/api/events/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE + ";charset=utf8"))
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("offline").value(true));
     }
-    
+
     @Test
     @DisplayName("HATEOAS 추가")
     void createEventPlusHateoas() throws Exception {
-            EventDto eventDto = EventDto.builder()
-                    .name("Spring")
-                    .description("REST API Development with Spring")
-                    .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-                    .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-                    .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
-                    .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
-                    .basePrice(100)
-                    .maxPrice(200)
-                    .limitOfEnrollment(100)
-                    .location("신사역 스타텁 팩토리")
-                    .build();
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("신사역 스타텁 팩토리")
+                .build();
 
         mockMvc.perform(post("/api/events/hateoas")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -215,7 +215,7 @@ class EventControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-event").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-event").exists());
         }
 }
