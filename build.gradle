@@ -1,13 +1,25 @@
 plugins {
     id 'org.springframework.boot' version '2.7.2'
     id 'io.spring.dependency-management' version '1.0.12.RELEASE'
-    id 'org.asciidoctor.convert' version '1.5.8'
+    id "org.asciidoctor.jvm.convert" version "3.3.2"
     id 'java'
 }
 
 group = 'study.park'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+bootJar {
+    dependsOn asciidoctor
+    copy {
+        from "${asciidoctor.outputDir}"
+        into 'BOOT-INF/classes/static/docs'
+    }
+}
 
 configurations {
     compileOnly {
@@ -17,10 +29,6 @@ configurations {
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -34,7 +42,7 @@ dependencies {
     implementation 'org.modelmapper:modelmapper:3.1.0'
 
     compileOnly 'org.projectlombok:lombok'
-//    runtimeOnly'com.h2database:h2'
+    runtimeOnly'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -44,12 +52,26 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
 }
 
-tasks.named('test') {
-    outputs.dir snippetsDir
+test {
     useJUnitPlatform()
+    outputs.dir snippetsDir
 }
 
-tasks.named('asciidoctor') {
+asciidoctor {
     inputs.dir snippetsDir
     dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    dependsOn copyDocument
 }
