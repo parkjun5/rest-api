@@ -1,4 +1,4 @@
-package study.park.restapi.response.resource;
+package study.park.restapi.response.representation;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.hateoas.Link;
@@ -15,7 +15,7 @@ public class EventRepresentation extends RepresentationModel<Event> {
     @JsonUnwrapped
     private Event event;
 
-    public EventRepresentation(Event event, Link... links) {
+    public EventRepresentation(Event event) {
         this.event = event;
         add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
     }

@@ -96,7 +96,7 @@ include::{snippets}/errors/http-response.adoc[]
 
 `GET` 요청을 사용하여 인덱스에 접근할 수 있다.
 
-operation::index[snippets='response-body,http-response,links']
+include::{snippets}/index-access/http-request.adoc[]
 
 [[resources-events]]
 == 이벤트
@@ -154,11 +154,46 @@ include::{snippets}/create-event/links.adoc[]
 
 `Get` 요청을 사용해서 기존 이벤트 하나를 조회할 수 있다.
 
-operation::get-event[snippets='request-fields,curl-request,http-response,links']
+`curl-request`
+
+include::{snippets}/events-get/curl-request.adoc[]
+
+`http-request`
+
+include::{snippets}/events-get/http-request.adoc[]
+
+`http-response`
+
+include::{snippets}/events-get/http-response.adoc[]
 
 [[resources-events-update]]
 === 이벤트 수정
 
 `PUT` 요청을 사용해서 기존 이벤트를 수정할 수 있다.
 
-include::update-event[snippets='request-fields,curl-request,http-response,links']
+`curl-request`
+
+include::{snippets}/events-put/curl-request.adoc[]
+
+`http-request`
+
+include::{snippets}/events-put/http-request.adoc[]
+
+`http-response`
+
+include::{snippets}/events-put/http-response.adoc[]
+
+`PATCH` 요청을 사용해서 기존 이벤트의 일부를 수정할 수 있다.
+
+`curl-request`
+
+include::{snippets}/events-patch/curl-request.adoc[]
+
+`http-request`
+
+include::{snippets}/events-patch/http-request.adoc[]
+
+`http-response`
+
+include::{snippets}/events-patch/http-response.adoc[]
+

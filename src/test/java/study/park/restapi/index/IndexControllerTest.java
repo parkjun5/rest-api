@@ -33,7 +33,7 @@ class IndexControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.events").exists())
                 .andDo(document(
-                        "index"
+                        "index-access"
                 ));
     }
 
