@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Builder @AllArgsConstructor @NoArgsConstructor
 @Data
-public class EventDto {
+public class EventDto extends RepresentationModel<EventDto> {
 
     @NotEmpty
     private String name;

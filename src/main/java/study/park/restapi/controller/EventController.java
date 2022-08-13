@@ -18,9 +18,11 @@ import study.park.restapi.response.representation.EventDtoRepresentation;
 import study.park.restapi.response.representation.EventRepresentation;
 import study.park.restapi.response.validate.EventValidator;
 import study.park.restapi.repository.EventRepository;
+import study.park.restapi.service.EventService;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -34,6 +36,8 @@ public class EventController {
     private final ModelMapper modelMapper;
 
     private final EventValidator eventValidator;
+
+    private final EventService eventService;
 
     @GetMapping
     public ResponseEntity queryEvent(Pageable pageable, PagedResourcesAssembler<Event> pagedResourcesAssembler) {
@@ -61,6 +65,53 @@ public class EventController {
         URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
 
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity getEvent(@PathVariable Integer id) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Event event = optionalEvent.get();
+
+        EventRepresentation eventRepresentation = new EventRepresentation(event);
+        eventRepresentation.add(Link.of("/docs/index.html#resources-index-access").withRel("profile"));
+        return ResponseEntity.ok(eventRepresentation);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity putEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto, Errors errors) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (errors.hasErrors()) {
+            return getBadRequest(errors);
+        }
+
+        eventValidator.validate(eventDto, errors);
+
+        EventDto result = eventService.updateAllById(id, eventDto);
+        EventDtoRepresentation eventDtoRepresentation = new EventDtoRepresentation(id ,result);
+        eventDtoRepresentation.add(Link.of("/docs/index.html#resources-patch-event").withRel("profile"));
+        return ResponseEntity.ok(eventDtoRepresentation);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity patchEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto, Errors errors) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Event event = eventService.updateById(id, eventDto);
+        EventDto result = modelMapper.map(event, EventDto.class);
+        EventDtoRepresentation eventDtoRepresentation = new EventDtoRepresentation(id ,result);
+        eventDtoRepresentation.add(Link.of("/docs/index.html#resources-patch-event").withRel("profile"));
+        return ResponseEntity.ok(eventDtoRepresentation);
     }
 
     @PostMapping(value = "/hateoas")
