@@ -4,7 +4,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.util.StringUtils;
-import study.park.restapi.response.dto.EventDto;
+import study.park.restapi.domain.response.dto.EventDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +17,7 @@ import java.util.Objects;
 public class Event extends RepresentationModel<Event> {
 
     @Id @GeneratedValue
+    @Column(name = "event_id")
     private Integer id;
     private String name;
     private String description;
@@ -33,6 +34,10 @@ public class Event extends RepresentationModel<Event> {
 
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account manager;
 
     public static Event createEvent() {
         return new Event();

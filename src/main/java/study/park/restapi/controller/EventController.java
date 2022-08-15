@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import study.park.restapi.domain.Event;
-import study.park.restapi.response.dto.EventDto;
-import study.park.restapi.response.representation.ErrorRepresentation;
-import study.park.restapi.response.representation.EventDtoRepresentation;
-import study.park.restapi.response.representation.EventRepresentation;
-import study.park.restapi.response.validate.EventValidator;
+import study.park.restapi.domain.response.dto.EventDto;
+import study.park.restapi.domain.response.representation.ErrorRepresentation;
+import study.park.restapi.domain.response.representation.EventDtoRepresentation;
+import study.park.restapi.domain.response.representation.EventRepresentation;
+import study.park.restapi.domain.response.validate.EventValidator;
 import study.park.restapi.repository.EventRepository;
 import study.park.restapi.service.EventService;
 

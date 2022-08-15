@@ -1,4 +1,4 @@
-package study.park.restapi.response.representation;
+package study.park.restapi.domain.response.representation;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.hateoas.EntityModel;

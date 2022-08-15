@@ -1,7 +1,6 @@
-package study.park.restapi.response.representation;
+package study.park.restapi.domain.response.representation;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
 import study.park.restapi.controller.EventController;
 import study.park.restapi.domain.Event;

@@ -1,8 +1,8 @@
-package study.park.restapi.response.validate;
+package study.park.restapi.domain.response.validate;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import study.park.restapi.response.dto.EventDto;
+import study.park.restapi.domain.response.dto.EventDto;
 
 import java.time.LocalDateTime;
 

@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import study.park.restapi.BaseControllerTest;
 import study.park.restapi.repository.EventRepository;
-import study.park.restapi.response.dto.EventDto;
+import study.park.restapi.domain.response.dto.EventDto;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
@@ -273,7 +273,7 @@ class EventControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.LOCATION).description("it tells location"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("it tells content-type ")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("identify of new event"),
                                 fieldWithPath("name").description("name of new event"),
                                 fieldWithPath("description").description("description of new event"),
@@ -348,7 +348,7 @@ class EventControllerTest extends BaseControllerTest {
                         headerWithName(HttpHeaders.LOCATION).description("it tells location"),
                         headerWithName(HttpHeaders.CONTENT_TYPE).description("it tells content-type ")
                 ),
-                responseFields(
+                relaxedResponseFields(
                         fieldWithPath("id").description("identify of new event"),
                         fieldWithPath("name").description("name of new event"),
                         fieldWithPath("description").description("description of new event"),

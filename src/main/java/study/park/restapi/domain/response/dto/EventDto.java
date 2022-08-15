@@ -1,4 +1,4 @@
-package study.park.restapi.response.dto;
+package study.park.restapi.domain.response.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

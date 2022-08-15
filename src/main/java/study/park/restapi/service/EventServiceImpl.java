@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.park.restapi.domain.Event;
 import study.park.restapi.repository.EventRepository;
-import study.park.restapi.response.dto.EventDto;
-
-import java.util.Optional;
+import study.park.restapi.domain.response.dto.EventDto;
 
 @Service
 @RequiredArgsConstructor
