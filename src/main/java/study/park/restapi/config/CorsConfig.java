@@ -16,10 +16,12 @@ public class CorsConfig {
 
         configuration.setAllowCredentials(true);
         configuration.addAllowedOrigin("*");
+        configuration.addAllowedHeader("Content-Type");
+        configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
 
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return new CorsFilter(source);
     }
 }

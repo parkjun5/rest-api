@@ -8,10 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import study.park.restapi.domain.Account;
 import study.park.restapi.domain.AccountRole;
-import study.park.restapi.repository.AccountRepository;
 
 import java.util.Set;
 
@@ -26,7 +26,7 @@ class AccountServiceTest {
     AccountService accountService;
 
     @Autowired
-    AccountRepository accountRepository;
+    PasswordEncoder passwordEncoder;
 
     @Test
     @DisplayName("회원 이름으로 찾기 비밀번호 X")
@@ -34,15 +34,14 @@ class AccountServiceTest {
         //given
         String username = "parkjun5@gmail.com";
         String password = "123";
-
         creteAccount(username, password);
 
         //when
-        UserDetailsService userDetailsService = (UserDetailsService) accountService;
+        UserDetailsService userDetailsService = accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         //then
-        assertThat(userDetails.getPassword()).isEqualTo(password);
+        assertThat(passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
 
@@ -55,6 +54,8 @@ class AccountServiceTest {
         String password = "123";
 
         creteAccount(username, password);
+
+
 
         //when
         UserDetailsService userDetailsService = (UserDetailsService) accountService;
@@ -70,7 +71,7 @@ class AccountServiceTest {
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
-        accountRepository.save(account);
+        accountService.saveAccount(account);
     }
 
 }

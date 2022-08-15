@@ -1,18 +1,26 @@
 package study.park.restapi.domain;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import study.park.restapi.BaseControllerTest;
+import study.park.restapi.config.jwt.JwtProperties;
 import study.park.restapi.repository.EventRepository;
 import study.park.restapi.domain.response.dto.EventDto;
+import study.park.restapi.service.AccountService;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -28,6 +36,25 @@ class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     EventRepository eventRepository;
+
+    @Autowired
+    AccountService accountService;
+
+    private static String TOKEN = "";
+
+    @BeforeEach
+    void init() {
+        String username = "parkjun2@gmail.com";
+        String password = "123";
+        Account account = creteAccount(username, password);
+
+        TOKEN = JwtProperties.TOKEN_PREFIX + JWT.create()
+                .withSubject(account.getEmail())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .withClaim("username", account.getEmail())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+    }
+
 
     @Test
     @DisplayName("기본 테스트 POST /api/events/")
@@ -48,7 +75,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(eventDto)))
+                        .content(objectMapper.writeValueAsString(eventDto))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -105,7 +134,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(nameNullEvent)))
+                        .content(objectMapper.writeValueAsString(nameNullEvent))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("_links.index").exists());
@@ -130,7 +161,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(nameNullEvent)))
+                        .content(objectMapper.writeValueAsString(nameNullEvent))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("_links.index").exists());
@@ -155,7 +188,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(nameNullEvent)))
+                        .content(objectMapper.writeValueAsString(nameNullEvent))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors[0].objectName").exists())
@@ -182,7 +217,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(eventDto)))
+                        .content(objectMapper.writeValueAsString(eventDto))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -212,7 +249,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/hateoas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(eventDto)))
+                        .content(objectMapper.writeValueAsString(eventDto))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("_links.self").exists())
@@ -239,7 +278,9 @@ class EventControllerTest extends BaseControllerTest {
         mockMvc.perform(post("/api/events/hateoas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
-                        .content(objectMapper.writeValueAsString(eventDto)))
+                        .content(objectMapper.writeValueAsString(eventDto))
+                        .header("Authorization", TOKEN)
+                )
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("_links.self").exists())
@@ -315,7 +356,8 @@ class EventControllerTest extends BaseControllerTest {
         ResultActions resultActions = mockMvc.perform(post("/api/events/hateoas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(eventDto)));
+                .content(objectMapper.writeValueAsString(eventDto))
+                .header("Authorization", TOKEN));
 
         resultActions.andDo(print())
                 .andExpect(status().isCreated());
@@ -381,6 +423,7 @@ class EventControllerTest extends BaseControllerTest {
                         .param("page", "0")
                         .param("size", "10")
                         .param("sort", "name,DESC")
+                        .header("Authorization", TOKEN)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -400,7 +443,8 @@ class EventControllerTest extends BaseControllerTest {
         //given
         Event event = generateEvent(150);
         //when
-        this.mockMvc.perform(get("/api/events/{id}", event.getId()))
+        this.mockMvc.perform(get("/api/events/{id}", event.getId())
+                        .header("Authorization", TOKEN))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -417,7 +461,8 @@ class EventControllerTest extends BaseControllerTest {
     void getEvent404() throws Exception {
         //given
         //when
-        this.mockMvc.perform(get("/api/events/{id}", 999))
+        this.mockMvc.perform(get("/api/events/{id}", 999)
+                        .header("Authorization", TOKEN))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -440,6 +485,7 @@ class EventControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(eventDto))
+                        .header("Authorization", TOKEN)
         )
         .andDo(print())
         .andExpect(status().isOk());
@@ -464,6 +510,7 @@ class EventControllerTest extends BaseControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaTypes.HAL_JSON)
                                 .content(objectMapper.writeValueAsString(eventDto))
+                                .header("Authorization", TOKEN)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -486,6 +533,7 @@ class EventControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(eventDto))
+                                .header("Authorization", TOKEN)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -516,4 +564,15 @@ class EventControllerTest extends BaseControllerTest {
         eventRepository.save(event);
         return event;
     }
+
+    private Account creteAccount(String username, String password) {
+        Account account = Account.builder()
+                .email(username)
+                .password(password)
+                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build();
+
+        return accountService.saveAccount(account);
+    }
+
 }

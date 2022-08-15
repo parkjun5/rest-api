@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 import study.park.restapi.config.principal.PrincipalDetails;
 import study.park.restapi.domain.Account;
 import study.park.restapi.repository.AccountRepository;
@@ -19,24 +20,29 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Enumeration;
 
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+
+    private final AuthenticationManager authenticationManager;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, AccountRepository accountRepository) {
-        super(authenticationManager);
         this.accountRepository = accountRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String header = request.getHeader(JwtProperties.HEADER_STRING);
         if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
-            chain.doFilter(request, response);
+            filterChain.doFilter(request, response);
             return;
         }
+
         System.out.println("header = " + header);
 
         String token = request.getHeader(JwtProperties.HEADER_STRING).replace(JwtProperties.TOKEN_PREFIX, "");
@@ -59,6 +65,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 }

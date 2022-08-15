@@ -2,22 +2,19 @@ package study.park.restapi.config.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import study.park.restapi.config.principal.PrincipalDetails;
+import org.springframework.util.StringUtils;
 import study.park.restapi.domain.request.dto.LoginRequestDto;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 
 @Slf4j
@@ -32,40 +29,35 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        System.out.println("JwtAuthenticationFilter.attemptAuthentication + jwt FIlter 진입");
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        LoginRequestDto loginRequestDto = new LoginRequestDto();
-
-        try {
-            loginRequestDto = objectMapper.readValue(request.getInputStream(), LoginRequestDto.class);
-        } catch (IOException ioException) {
-            log.error("로그인시 잘못된 값 저장" + ioException.getMessage());
+        request.getHeaderNames().asIterator().forEachRemaining(n ->{
+            System.out.println(n + " = " + request.getHeader(n));
+        });
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
+            throw new IllegalArgumentException("이름 혹은 페스워드가 비어있습니다.");
         }
+
+        LoginRequestDto loginRequestDto = new LoginRequestDto(username, password);
+
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword());
 
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("principalDetails = " + principalDetails);
-        System.out.println("authentication = " + authentication);
-
-        return authentication;
+        return authenticationManager.authenticate(authenticationToken);
     }
 
     @Override
     protected void successfulAuthentication(
             HttpServletRequest request, HttpServletResponse response,
-            FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+            FilterChain chain, Authentication authResult) {
+
+        UserDetails userDetails = (UserDetails) authResult.getPrincipal();
 
         String jwtToken = JWT.create()
-                .withSubject(principalDetails.getUsername())
+                .withSubject(userDetails.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                .withClaim("id", principalDetails.getAccount().getEmail())
-                .withClaim("username", principalDetails.getAccount().getEmail())
+                .withClaim("username", userDetails.getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);

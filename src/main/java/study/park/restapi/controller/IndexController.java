@@ -15,5 +15,4 @@ public class IndexController {
         index.add(linkTo(EventController.class).withRel("events"));
         return index;
     }
-
 }

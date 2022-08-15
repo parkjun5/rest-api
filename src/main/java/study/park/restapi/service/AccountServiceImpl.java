@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.park.restapi.domain.Account;
@@ -13,6 +14,7 @@ import study.park.restapi.domain.AccountRole;
 import study.park.restapi.repository.AccountRepository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,20 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    @Transactional
+    public Account saveAccount(Account account) {
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        return accountRepository.save(account);
+    }
+
+    @Override
+    public List<Account> findAll() {
+        return accountRepository.findAll();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -35,4 +51,5 @@ public class AccountServiceImpl implements AccountService {
                 .map( role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .collect(Collectors.toSet());
     }
+
 }
