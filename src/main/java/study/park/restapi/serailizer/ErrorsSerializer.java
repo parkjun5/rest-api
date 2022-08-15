@@ -1,4 +1,4 @@
-package study.park.restapi.error;
+package study.park.restapi.serailizer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

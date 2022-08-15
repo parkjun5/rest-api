@@ -2,7 +2,6 @@ package study.park.restapi.domain;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.ResultActions;
 import study.park.restapi.BaseControllerTest;
 import study.park.restapi.config.jwt.JwtProperties;
+import study.park.restapi.repository.AccountRepository;
 import study.park.restapi.repository.EventRepository;
 import study.park.restapi.domain.response.dto.EventDto;
 import study.park.restapi.service.AccountService;
-import study.park.restapi.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -42,6 +41,9 @@ class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     AccountService accountService;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     private static String TOKEN = "";
 
@@ -467,6 +469,7 @@ class EventControllerTest extends BaseControllerTest {
     void getEventWithAuth() throws Exception {
         //given
         Event event = generateEvent(150);
+
         //when
         this.mockMvc.perform(get("/api/events/{id}", event.getId())
                         .header("Authorization", TOKEN))
@@ -586,6 +589,8 @@ class EventControllerTest extends BaseControllerTest {
                 .free(true)
                 .offline(true)
                 .build();
+        Account account = accountRepository.findByEmail("parkjun2@gmail.com").orElseThrow(() -> new UsernameNotFoundException("왜없지..?"));
+        event.setManager(account);
 
         eventRepository.save(event);
         return event;
@@ -597,7 +602,6 @@ class EventControllerTest extends BaseControllerTest {
                 .password(password)
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
-
         return accountService.saveAccount(account);
     }
 

@@ -46,7 +46,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests( (auth) ->
                 auth.mvcMatchers("/docs/index.html").authenticated()
                         .antMatchers( "/test/**").permitAll()
-                        .antMatchers("/api/**").permitAll()
+                        .mvcMatchers("GET", "/api").permitAll()
+                        .mvcMatchers("GET", "/api/events/*").permitAll()
+                        .antMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                         .httpBasic().disable()
                         .formLogin()

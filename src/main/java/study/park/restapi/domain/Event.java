@@ -1,10 +1,12 @@
 package study.park.restapi.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.util.StringUtils;
 import study.park.restapi.domain.response.dto.EventDto;
+import study.park.restapi.serailizer.AccountSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -37,6 +39,7 @@ public class Event extends RepresentationModel<Event> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
+    @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
 
     public static Event createEvent() {

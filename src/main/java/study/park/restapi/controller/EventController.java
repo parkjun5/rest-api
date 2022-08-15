@@ -81,9 +81,8 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable Integer id, @AuthenticationPrincipal UserDetails userDetails) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+    public ResponseEntity getEvent(@PathVariable Integer id,
+                                   @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : account") Account account) {
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -93,7 +92,7 @@ public class EventController {
 
         EventRepresentation eventRepresentation = new EventRepresentation(event);
         eventRepresentation.add(Link.of("/docs/index.html#resources-index-access").withRel("profile"));
-        if (userDetails != null) {
+        if (event.getManager().equals(account)) {
             eventRepresentation.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
         }
         return ResponseEntity.ok(eventRepresentation);
