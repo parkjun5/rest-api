@@ -2,6 +2,7 @@ package study.park.restapi.domain;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,12 +18,14 @@ import study.park.restapi.config.jwt.JwtProperties;
 import study.park.restapi.repository.EventRepository;
 import study.park.restapi.domain.response.dto.EventDto;
 import study.park.restapi.service.AccountService;
+import study.park.restapi.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -60,7 +63,7 @@ class EventControllerTest extends BaseControllerTest {
     @DisplayName("기본 테스트 POST /api/events/")
     void createEvent() throws Exception {
         EventDto eventDto = EventDto.builder()
-                .name("Spring")
+                .name("SpringTester")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
@@ -86,6 +89,10 @@ class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
+
+        Event event = eventRepository.findByName(eventDto.getName())
+                .orElseThrow(() -> new NullPointerException("널포인터"));
+        assertThat(event.getManager()).isNotNull();
     }
 
 //    @Test
@@ -438,8 +445,26 @@ class EventControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("기존의 이벤트를 하나 조회하기")
-    void getEvent() throws Exception {
+    @DisplayName("기존의 이벤트를 권한없이 하나 조회하기")
+    void getEventNoAuth() throws Exception {
+        //given
+        Event event = generateEvent(150);
+        //when
+        this.mockMvc.perform(get("/api/events/{id}", event.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document(
+                        "events-get"
+                ));
+    }
+
+    @Test
+    @DisplayName("기존의 이벤트를 권한있이 하나 조회하기")
+    void getEventWithAuth() throws Exception {
         //given
         Event event = generateEvent(150);
         //when
@@ -451,6 +476,7 @@ class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("name").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
                 .andDo(document(
                         "events-get"
                 ));

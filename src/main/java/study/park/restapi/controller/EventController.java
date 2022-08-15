@@ -9,8 +9,15 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import study.park.restapi.domain.Account;
+import study.park.restapi.domain.AccountRole;
 import study.park.restapi.domain.Event;
 import study.park.restapi.domain.response.dto.EventDto;
 import study.park.restapi.domain.response.representation.ErrorRepresentation;
@@ -48,7 +55,10 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+    public ResponseEntity createEvent(
+            @RequestBody @Valid EventDto eventDto,
+            Errors errors,
+            @AuthenticationPrincipal(expression = "account") Account account) {
         if (errors.hasErrors()) {
             return getBadRequest(errors);
         }
@@ -61,6 +71,9 @@ public class EventController {
 
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
+        if (account != null) {
+            event.setManager(account);
+        }
         Event savedEvent = eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
@@ -68,7 +81,9 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable Integer id) {
+    public ResponseEntity getEvent(@PathVariable Integer id, @AuthenticationPrincipal UserDetails userDetails) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -78,6 +93,9 @@ public class EventController {
 
         EventRepresentation eventRepresentation = new EventRepresentation(event);
         eventRepresentation.add(Link.of("/docs/index.html#resources-index-access").withRel("profile"));
+        if (userDetails != null) {
+            eventRepresentation.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+        }
         return ResponseEntity.ok(eventRepresentation);
     }
 
