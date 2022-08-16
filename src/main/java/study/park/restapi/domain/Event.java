@@ -65,6 +65,12 @@ public class Event extends RepresentationModel<Event> {
 
     }
 
+    public void eventBasicUpdate(Account account) {
+        this.free = this.basePrice == 0 && this.maxPrice == 0;
+        this.offline = !StringUtils.hasText(location);
+        this.manager = account;
+    }
+
     public void putEvent(EventDto eventDto) {
             this.name = eventDto.getName();
             this.description = eventDto.getDescription();
