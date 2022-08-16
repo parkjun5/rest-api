@@ -97,33 +97,32 @@ class EventControllerTest extends BaseControllerTest {
         assertThat(event.getManager()).isNotNull();
     }
 
-//    @Test
-//    TODO: spring.jackson.deserialization.fail-on-unknown-properties=true 가 갑자기 작동안함 확인필요
-//    @DisplayName("알수없는 인풋 값 예외 테스트 POST /api/events/")
-//    void event_Bad_Request_Unknown_Input() throws Exception {
-//        Event event = Event.builder()
-//                .name("Spring")
-//                .description("REST API Development with Spring")
-//                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
-//                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
-//                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
-//                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
-//                .basePrice(100)
-//                .maxPrice(200)
-//                .limitOfEnrollment(100)
-//                .location("신사역 스타텁 팩토리")
-//                .free(true)
-//                .offline(false)
-//                .eventStatus(EventStatus.PUBLISHED)
-//                .build();
-//
-//        mockMvc.perform(post("/api/events/")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaTypes.HAL_JSON)
-//                        .content(objectMapper.writeValueAsString(event)))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//    }
+    @Test
+    @DisplayName("알수없는 인풋 값 예외 테스트 POST /api/events/")
+    void event_Bad_Request_Unknown_Input() throws Exception {
+        Event event = Event.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 8, 11, 18, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022, 8, 12, 18, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2022, 8, 15, 18, 0, 0))
+                .endEventDateTime(LocalDateTime.of(2022, 8, 30, 18, 0, 0))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("신사역 스타텁 팩토리")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isMethodNotAllowed());
+    }
 
     @Test
     @DisplayName("빈 필수 인풋 값 예외 테스트 POST /api/events/")

@@ -8,12 +8,9 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import study.park.restapi.domain.Account;
@@ -58,9 +55,13 @@ public class EventController {
     public ResponseEntity createEvent(
             @RequestBody @Valid EventDto eventDto,
             Errors errors,
-            @AuthenticationPrincipal(expression = "account") Account account) {
+            @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : account") Account account) {
         if (errors.hasErrors()) {
             return getBadRequest(errors);
+        }
+
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new ErrorRepresentation(errors));
         }
 
         eventValidator.validate(eventDto, errors);
@@ -71,9 +72,7 @@ public class EventController {
 
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
-        if (account != null) {
-            event.setManager(account);
-        }
+
         Event savedEvent = eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
